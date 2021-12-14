@@ -20,3 +20,15 @@ func Ints(lines []string) []int {
 	}
 	return ret
 }
+
+func IntsConv(lines []string, base, bitSize int) []int {
+	ret := make([]int, len(lines))
+	for i, l := range lines {
+		j, err := strconv.ParseInt(l, base, bitSize)
+		if err != nil {
+			panic(err)
+		}
+		ret[i] = int(j)
+	}
+	return ret
+}
