@@ -214,11 +214,50 @@ func fastestWinner(t *testing.T, input string) (firstWinner, firstWinsAfter, fir
 		}
 	}
 	if assert.GreaterOrEqual(t, firstWinner, 0) {
-		t.Logf("best board is %d after %d scoring %d", firstWinner, firstWinsAfter, firstWinsScore)
+		t.Logf("fastest board is %d after %d scoring %d", firstWinner, firstWinsAfter, firstWinsScore)
 	}
 	return
 }
 
 func TestChallenge1(t *testing.T) {
 	fastestWinner(t, input)
+}
+
+func TestExample2(t *testing.T) {
+	lastWinner, lastWinsAfter, lastWinsScore := slowestWinner(t, exampleInput)
+	assert.Equal(t, 1, lastWinner)
+	assert.Equal(t, 15, lastWinsAfter)
+	assert.Equal(t, 1924, lastWinsScore)
+}
+
+func slowestWinner(t *testing.T, input string) (lastWinner, lastWinsAfter, lastWinsScore int) {
+	in := parseInput(t, input)
+	lastWinner = -1
+	lastWinsAfter = -1
+	lastWinsScore = -1
+	for i, b := range in.Boards {
+		r := playBoard(b, in.Calls)
+		if r.WinsAfter == 0 {
+			t.Logf("board %d is a loser", i)
+			continue
+		}
+		if lastWinsAfter < 0 || r.WinsAfter > lastWinsAfter {
+			t.Logf("board %d wins slower than %d: %d < %d, score %d vs %d",
+				i, lastWinner,
+				r.WinsAfter, lastWinsAfter,
+				r.Score, lastWinsScore,
+			)
+			lastWinner = i
+			lastWinsAfter = r.WinsAfter
+			lastWinsScore = r.Score
+		}
+	}
+	if assert.GreaterOrEqual(t, lastWinner, 0) {
+		t.Logf("slowest board is %d after %d scoring %d", lastWinner, lastWinsAfter, lastWinsScore)
+	}
+	return
+}
+
+func TestChallenge2(t *testing.T) {
+	slowestWinner(t, input)
 }
