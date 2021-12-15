@@ -6,7 +6,7 @@ const recycleDelay = 6
 const maxDelay = recycleDelay + 2
 
 // number of fish at each growth delay
-type GrowthState = [maxDelay + 1]int
+type GrowthState = [maxDelay + 1]int64
 
 func InitState(input []int) GrowthState {
 	var state GrowthState
@@ -30,8 +30,8 @@ func Grow(state GrowthState) GrowthState {
 	return state
 }
 
-func Total(state GrowthState) int {
-	total := 0
+func Total(state GrowthState) int64 {
+	total := int64(0)
 	for _, n := range state {
 		total += n
 	}
