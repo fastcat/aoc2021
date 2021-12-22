@@ -1,0 +1,53 @@
+a C
+b F
+c G
+d A
+e B
+f D
+g E
+
+acedgfb 8
+cdfbe   5 (ag unset)
+gcdfa   2 (be unset)
+fbcad   3 (eg unset)
+dab     7
+cefabd  9 (g unset)
+cdfgeb  6 (a unset)
+eafb    4
+cagedb  0 (f unset)
+ab      1
+
+obs rules
+% ones=p is/mask-with X => ones!=p mask-with ~X
+% segs[x] is bit-or segs[w] for each w bit set in x
+* ones=2 is 1, mask wires with CF, mask ~wires with ~CF
+* ones=3 is 7, mask wires with ACF, mask ~wires with ~ACF
+* ones=4 is 4, mask wires with BCDF
+* ones=5 is 235
+* ones=5 && segs[~w]&B=0 is 25 # if no unlit segment is B (B must be lit), must be 2 or 5 (not 3)
+* ones=5 && segs[~w]&C=0 is 23 # if ... C is lit, then must be 2 o4 3 (not 5)
+* ones=5 && segs[~w]&E=0 is 2 # if ... E is lit, then must be 2
+* ones=5 && segs[~w]&F=0 is 35 # if ... F is lit, then must be 3 or 5 (not 2)
+* ones=6 is 069, mask ~wires with CDE
+* ones=6 && segs[~w]=D is 0
+* ones=6 && segs[~w]=C is 6
+* ones=6 && segs[~w]=E is 9 # should be unnecessary
+* ones=7 is 8
+
+wire rules
+% can we skip these?
+* ones=1, mask others with ~val
+
+decoder:
+% map wires to segs
+* ABCEFG  = 0
+* CF      = 1
+* ACDEG   = 2
+* ACDFG   = 3
+* BCDF    = 4
+* ABDFG   = 5
+* ABDEFG  = 6
+* ABCDEFG = 8
+* ABCDFG  = 9
+
+For part 1, we only need to decode the length-based ones
