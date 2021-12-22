@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCostExample(t *testing.T) {
+func TestLinearCostExample(t *testing.T) {
 	tests := []struct {
 		target int
 		want   int
@@ -19,19 +19,19 @@ func TestCostExample(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("target=%d", tt.target), func(t *testing.T) {
-			cost := costTo(exampleInput, tt.target)
+			cost := linearCost(exampleInput, tt.target)
 			assert.Equal(t, tt.want, cost)
 		})
 	}
 }
 
-func TestCheapestNaiveExample(t *testing.T) {
-	target, cost := cheapestNaive(exampleInput)
+func TestCheapestNaiveLinearExample(t *testing.T) {
+	target, cost := cheapestNaive(exampleInput, linearCost)
 	assert.Equal(t, 2, target)
 	assert.Equal(t, 37, cost)
 }
 
-func TestCheapestNaiveChallenge(t *testing.T) {
-	target, cost := cheapestNaive(challengeInput)
+func TestCheapestNaiveLinearChallenge(t *testing.T) {
+	target, cost := cheapestNaive(challengeInput, linearCost)
 	t.Logf("cheapest is %d @ %d", target, cost)
 }
