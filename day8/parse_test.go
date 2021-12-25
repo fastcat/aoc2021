@@ -13,6 +13,13 @@ func TestParseValue(t *testing.T) {
 		assertion assert.ErrorAssertionFunc
 	}{
 		{"a", A, nil},
+		{"b", B, nil},
+		{"c", C, nil},
+		{"d", D, nil},
+		{"e", E, nil},
+		{"f", F, nil},
+		{"g", G, nil},
+		{"acf", A | C | F, nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.pattern, func(t *testing.T) {

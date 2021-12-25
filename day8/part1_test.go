@@ -11,10 +11,10 @@ func countSimple(entries ...Entry) int {
 	n := 0
 	for _, e := range entries {
 		a := NewAnalysis(e)
-		a.Rule01BitLengths()
+		a.Rule01DigitOptions()
 		for _, o := range e.Outputs {
 			v := a.Decode(o)
-			if v.Len() == 1 {
+			if v[0].Len() == 1 {
 				n++
 			}
 		}

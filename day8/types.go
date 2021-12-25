@@ -15,19 +15,39 @@ const (
 	AllValues Value = 0b1111111
 )
 
-type Entry struct {
-	Patterns [10]Value
-	Outputs  [4]Value
+func (v Value) String() string {
+	ret := ""
+	for i := 0; i < 7; i++ {
+		if v&(1<<i) != 0 {
+			ret += string('a' + rune(i))
+		}
+	}
+	return ret
 }
 
 func (v Value) Len() int {
 	return bits.OnesCount8(uint8(v))
 }
 
+type Entry struct {
+	Patterns [10]Value
+	Outputs  [4]Value
+}
+
 type DigitOption uint16
 
 func (d DigitOption) Len() int {
 	return bits.OnesCount16(uint16(d))
+}
+
+func (d DigitOption) String() string {
+	ret := ""
+	for i := 0; i < 10; i++ {
+		if d&(1<<i) != 0 {
+			ret += string('0' + rune(i))
+		}
+	}
+	return ret
 }
 
 const (
