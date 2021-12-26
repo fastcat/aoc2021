@@ -34,18 +34,30 @@ func NewAnalysis(e Entry) Analysis {
 	return ret
 }
 
-func (a *Analysis) Done() bool {
+func (a *Analysis) DonePatterns() bool {
+	var covered DigitOption
 	for _, o := range a.PatternOptions {
 		if o.Len() != 1 {
 			return false
 		}
+		covered |= o
 	}
+	return covered == AllDigits
+}
+
+func (a *Analysis) DoneWires() bool {
+	var covered Value
 	for _, o := range a.WireOptions {
 		if o.Len() != 1 {
 			return false
 		}
+		covered |= o
 	}
-	return true
+	return covered == AllValues
+}
+
+func (a *Analysis) Done() bool {
+	return a.DoneWires() && a.DonePatterns()
 }
 
 func (a *Analysis) maskWires(pattern, mask Value) {
@@ -103,9 +115,93 @@ func (a *Analysis) Rule02WireMasks() {
 	}
 }
 
+func (a *Analysis) Rule03Len5Segments() {
+	for i, p := range a.Patterns {
+		if p.Len() != 5 {
+			continue
+		}
+		var segs Value
+		for j := 0; j < 7; j++ {
+			if p&(1<<j) == 0 {
+				segs |= a.WireOptions[j]
+			}
+		}
+		if segs&B == 0 {
+			a.PatternOptions[i] &= Two | Five
+		} else if segs&C == 0 {
+			a.PatternOptions[i] &= Two | Three
+		} else if segs&E == 0 {
+			a.PatternOptions[i] &= Two
+		} else if segs&F == 0 {
+			a.PatternOptions[i] &= Three | Five
+		}
+	}
+}
+
+func (a *Analysis) Rule04Len6Segments() {
+	for i, p := range a.Patterns {
+		if p.Len() != 6 {
+			continue
+		}
+		var segs Value
+		for j := 0; j < 7; j++ {
+			if p&(1<<j) == 0 {
+				segs |= a.WireOptions[j]
+			}
+		}
+		if segs == C {
+			a.PatternOptions[i] &= Six
+		} else if segs == D {
+			a.PatternOptions[i] &= Zero
+		} else if segs == E {
+			a.PatternOptions[i] &= Nine
+		}
+	}
+}
+
+func (a *Analysis) Rule05WireExclusions() {
+	for i, w := range a.WireOptions {
+		if w.Len() != 1 {
+			continue
+		}
+		for j := range a.WireOptions {
+			if j == i {
+				continue
+			}
+			a.WireOptions[j] &= ^w
+		}
+	}
+}
+
+func (a *Analysis) Rule06WireDecoder() {
+	if !a.DoneWires() {
+		panic("wires not mapped yet")
+	}
+	for i, p := range a.Patterns {
+		if a.PatternOptions[i].Len() == 1 {
+			continue
+		}
+		var segs Value
+		for j := 0; j < 7; j++ {
+			if p&(1<<j) != 0 {
+				segs |= a.WireOptions[j]
+			}
+		}
+		for j, dd := range Displays {
+			if DigitDisplay(segs) == dd {
+				a.PatternOptions[i] &= 1 << j
+			}
+		}
+	}
+}
+
 func (a *Analysis) Analyze() bool {
 	a.Rule01DigitOptions()
 	a.Rule02WireMasks()
+	a.Rule03Len5Segments()
+	a.Rule04Len6Segments()
+	a.Rule05WireExclusions()
+	a.Rule06WireDecoder()
 	return a.Done()
 }
 

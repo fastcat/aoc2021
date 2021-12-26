@@ -40,6 +40,15 @@ func (d DigitOption) Len() int {
 	return bits.OnesCount16(uint16(d))
 }
 
+func (d DigitOption) Decode() int {
+	for i := 0; i < 10; i++ {
+		if d == 1<<i {
+			return i
+		}
+	}
+	panic("not decodable")
+}
+
 func (d DigitOption) String() string {
 	ret := ""
 	for i := 0; i < 10; i++ {
