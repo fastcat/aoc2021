@@ -3,6 +3,7 @@ package day9
 import (
 	_ "embed"
 	"fmt"
+	"sort"
 
 	"github.com/fastcat/aoc2021/util"
 )
@@ -84,4 +85,89 @@ func Part1LocalMinimaRiskLevelSum(b *Board) int {
 		sum += b.DepthAt(p) + 1
 	}
 	return sum
+}
+
+type Basin struct {
+	Minimum Point
+	Size    int
+}
+
+func (b *Board) Basins() []Basin {
+	// for each point on the board, walk the gradient descent until we hit a local
+	// minimum, and then mark everything on that path as a part of a basin with
+	// that minimum. If, in that walk, we hit a point with an already known basin,
+	// then we can stop there and mark our partial path as also part of that
+	// basin.
+	basins := map[Point]int{}
+	paths := make([]*Point, len(b.depths))
+	for r, ro := 0, 0; r < b.height; r, ro = r+1, ro+b.width {
+		for c, p := 0, ro; c < b.width; c, p = c+1, p+1 {
+			// skip if we we already walked this point
+			if paths[p] != nil {
+				continue
+			}
+			// skip high points
+			if b.depths[p] >= 9 {
+				continue
+			}
+			pathLen := 0
+			minimum := Point{-1, -1}
+			for pr, pc, pp := r, c, p; ; {
+				pathLen++
+				// record everything on the path as part of whatever minimum we
+				// eventually find
+				paths[pp] = &minimum
+				nextpr, nextpc, nextpp := pr, pc, pp
+				if pc > 0 && b.depths[pp-1] < b.depths[pp] {
+					// left < cur
+					nextpp = pp - 1
+					nextpc = pc - 1
+				}
+				if c < b.width-1 && b.depths[pp+1] < b.depths[nextpp] {
+					// right < best
+					nextpp = pp + 1
+					nextpc = pc + 1
+				}
+				if pr > 0 && b.depths[pp-b.width] < b.depths[nextpp] {
+					// above < best, might need to reset C
+					nextpp = pp - b.width
+					nextpc = pc
+					nextpr = pr - 1
+				}
+				if pr < b.height-1 && b.depths[pp+b.width] < b.depths[nextpp] {
+					nextpp = pp + b.width
+					nextpc = pc
+					nextpr = pr + 1
+				}
+				if nextpp == pp {
+					// hit a local minimum
+					minimum = Point{pr, pc}
+					break
+				} else if m := paths[nextpp]; m != nil {
+					// hit a prior path
+					minimum = *m
+					break
+				}
+				pr, pc, pp = nextpr, nextpc, nextpp
+			}
+			// path now contains all the new points, and minimum points to the basin
+			// minimum.
+			basins[minimum] += pathLen
+		}
+	}
+	ret := make([]Basin, 0, len(basins))
+	for m, s := range basins {
+		ret = append(ret, Basin{m, s})
+	}
+	return ret
+}
+
+func Part2BasinScore(basins []Basin) int {
+	// sort the basins descending by size
+	sort.Slice(basins, func(i, j int) bool { return basins[i].Size > basins[j].Size })
+	product := 1
+	for i := 0; i < 3 && i < len(basins); i++ {
+		product *= basins[i].Size
+	}
+	return product
 }
