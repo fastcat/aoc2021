@@ -71,6 +71,6 @@ func Part2TotalScore(lines ...string) int {
 		}
 	}
 	sort.Ints(scores)
-	mp := (len(scores) + 1) / 2
+	mp := len(scores) / 2
 	return scores[mp]
 }

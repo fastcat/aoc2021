@@ -28,4 +28,5 @@ func TestPart1Challenge(t *testing.T) {
 		score += Part1Score(l, err)
 	}
 	t.Logf("challenge score = %d", score)
+	assert.Equal(t, 369105, score)
 }

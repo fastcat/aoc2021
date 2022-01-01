@@ -80,7 +80,12 @@ func (c ChunkList) String() string {
 	return b.String()
 }
 
-var chunksParser = participle.MustBuild(&ChunkList{}, participle.Lexer(chunkLexer))
+var chunksParser = participle.MustBuild(&ChunkList{},
+	participle.Lexer(chunkLexer),
+	// we need to disable lookahead in order to ensure we get everything parsed
+	// even if there's an error
+	participle.UseLookahead(0),
+)
 
 func IsIncomplete(err error) (bool, participle.Error) {
 	var ut participle.UnexpectedTokenError

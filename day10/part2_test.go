@@ -31,3 +31,9 @@ func TestPart2Example(t *testing.T) {
 	score := Part2TotalScore(lines...)
 	assert.Equal(t, 288957, score)
 }
+
+func TestPart2Challenge(t *testing.T) {
+	lines := util.Lines(challengeInput)
+	score := Part2TotalScore(lines...)
+	t.Logf("challenge score = %d", score)
+}
