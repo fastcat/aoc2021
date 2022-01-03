@@ -1,8 +1,10 @@
 package day11
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/fastcat/aoc2021/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,6 +59,30 @@ func TestBoard_Step(t *testing.T) {
 			0,
 			MustParse("2"),
 		},
+		{
+			"3x3",
+			MustParse("000\n090\n000"),
+			1,
+			MustParse("222\n202\n222"),
+		},
+		{
+			"2x2c",
+			MustParse("88\n99"),
+			4,
+			MustParse("00\n00"),
+		},
+		{
+			"e1",
+			MustParse("11111\n19991\n19191\n19991\n11111"),
+			9,
+			MustParse("34543\n40004\n50005\n40004\n34543"),
+		},
+		{
+			"e2",
+			MustParse("34543\n40004\n50005\n40004\n34543"),
+			0,
+			MustParse("45654\n51115\n61116\n51115\n45654"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -66,4 +92,41 @@ func TestBoard_Step(t *testing.T) {
 			assert.Equal(t, tt.after, *b)
 		})
 	}
+}
+
+func assertBoard(t *testing.T, expected, actual Board) bool {
+	t.Helper()
+	ok := assert.Equal(t, expected, actual)
+	if !ok {
+		t.Logf("Expected:\n%s\nActual:\n%s\n", &expected, &actual)
+	}
+	return ok
+}
+
+func TestPart1Example(t *testing.T) {
+	b, err := Parse(exampleInput)
+	assert.NoError(t, err)
+	assert.Equal(t, strings.TrimSpace(exampleInput), b.String())
+	steps := util.Stanzas(exampleStepsInput)
+	tf := 0
+	for i := 1; i <= 100; i++ {
+		f := b.Step()
+		tf += f
+		if i <= 10 {
+			assertBoard(t, MustParse(steps[i-1]), b)
+		} else if i%10 == 0 {
+			assertBoard(t, MustParse(steps[10+(i-20)/10]), b)
+		}
+	}
+	assert.Equal(t, 1656, tf)
+}
+
+func TestPart1Challenge(t *testing.T) {
+	b, err := Parse(challengeInput)
+	assert.NoError(t, err)
+	tf := 0
+	for i := 1; i <= 100; i++ {
+		tf += b.Step()
+	}
+	t.Logf("challenge total flashes = %d", tf)
 }
