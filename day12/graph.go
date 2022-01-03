@@ -38,6 +38,10 @@ func (v Vertex) Big() bool {
 	return unicode.IsUpper(rune(v[0]))
 }
 
+func (v Vertex) Small() bool {
+	return !v.Big() && v != Start && v != End
+}
+
 type Graph map[Vertex]map[Vertex]bool
 
 func (g Graph) AddVertex(v Vertex) {
@@ -128,18 +132,25 @@ func (p Path) Copy() Path {
 
 func (g Graph) CountPaths(visitor func(Path)) int {
 	p := Path{Start}
-	return g.pathsFrom(p, visitor)
+	return g.pathsFrom(p, true, visitor)
 }
 
-func (g Graph) pathsFrom(initial Path, visitor func(Path)) int {
+func (g Graph) pathsFrom(initial Path, didSmallTwice bool, visitor func(Path)) int {
 	edges := g[initial[len(initial)-1]]
 	count := -0
 	for v, ok := range edges {
 		if !ok {
 			continue
 		}
-		if !v.Big() && initial.Includes(v) {
+		if v == Start {
 			continue
+		}
+		nextDST := didSmallTwice
+		if v.Small() && initial.Includes(v) {
+			if didSmallTwice {
+				continue
+			}
+			nextDST = true
 		}
 		next := initial.Append(v)
 		if v == End {
@@ -148,8 +159,13 @@ func (g Graph) pathsFrom(initial Path, visitor func(Path)) int {
 				visitor(next)
 			}
 		} else {
-			count += g.pathsFrom(next, visitor)
+			count += g.pathsFrom(next, nextDST, visitor)
 		}
 	}
 	return count
+}
+
+func (g Graph) CountPaths2(visitor func(Path)) int {
+	p := Path{Start}
+	return g.pathsFrom(p, false, visitor)
 }
