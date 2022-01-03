@@ -104,3 +104,12 @@ func (b *Board) flash(r, ro, c, p int) (cont bool) {
 	}
 	return
 }
+
+func (b *Board) AllZero() bool {
+	for _, l := range b.levels {
+		if l > 0 {
+			return false
+		}
+	}
+	return true
+}
