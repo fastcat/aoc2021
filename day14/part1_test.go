@@ -11,7 +11,7 @@ func TestPart1Example(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "NNCB", polymer)
 	for i := 0; i < 10; i++ {
-		polymer = Apply(polymer, rules...)
+		polymer = Apply(polymer, rules)
 		switch i {
 		case 0:
 			assert.Equal(t, "NCNBCHB", polymer)
@@ -31,7 +31,7 @@ func TestPart1Challenge(t *testing.T) {
 	polymer, rules, err := Parse(challengeInput)
 	assert.NoError(t, err)
 	for i := 0; i < 10; i++ {
-		polymer = Apply(polymer, rules...)
+		polymer = Apply(polymer, rules)
 	}
 	stats := Analyze(polymer)
 	score := stats[len(stats)-1].Count - stats[0].Count

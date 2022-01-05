@@ -2,7 +2,7 @@ package day14
 
 import "strings"
 
-func Apply(seed string, rules ...Rule) string {
+func Apply(seed string, rules []Rule) string {
 	b := strings.Builder{}
 	b.Grow(len(seed))
 	var p rune
@@ -20,4 +20,20 @@ func Apply(seed string, rules ...Rule) string {
 		p = c
 	}
 	return b.String()
+}
+
+func Apply2(counts PairCounts, rules []Rule) {
+	// we need to track what we're going to add separately else inserts can affect
+	// each other
+	inserts := make(PairCounts, len(counts))
+	for _, r := range rules {
+		c := counts[r.Match]
+		counts[r.Match] = 0
+		p1, p2 := Pair{r.Match[0], r.Insert}, Pair{r.Insert, r.Match[1]}
+		inserts[p1] += c
+		inserts[p2] += c
+	}
+	for p, c := range inserts {
+		counts[p] += c
+	}
 }

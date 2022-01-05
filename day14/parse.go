@@ -6,8 +6,11 @@ import (
 	"github.com/fastcat/aoc2021/util"
 )
 
+type Pair = [2]rune
+type PairCounts = map[Pair]int64
+
 type Rule struct {
-	Match  [2]rune
+	Match  Pair
 	Insert rune
 }
 
@@ -27,4 +30,17 @@ func Parse(input string) (seed string, rules []Rule, err error) {
 		rules = append(rules, r)
 	}
 	return
+}
+
+func Pairs(polymer string) PairCounts {
+	var p rune
+	ret := PairCounts{}
+	for i, c := range polymer {
+		if i > 0 {
+			pp := Pair{p, c}
+			ret[pp]++
+		}
+		p = c
+	}
+	return ret
 }
