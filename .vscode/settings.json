@@ -1,4 +1,6 @@
 {
 	"cSpell.enabled": false,
-	"go.lintTool": "golangci-lint"
+	"go.lintTool": "golangci-lint",
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true
 }
