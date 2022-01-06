@@ -36,7 +36,10 @@ func (p *PathCache) Fill() {
 			i := p.entryCosts.IteratorAtPoint(pt)
 			// iv is the current best cost for going from pt(i) to the dest
 			iv := p.pathCosts[pt]
+			// iev is the cost to enther point i
+			iev := i.Value()
 			for _, j := range i.SquareAdjacencies() {
+				jp := j.Point()
 				if jv, ok := p.pathCosts[j.Point()]; ok {
 					// we have a known cost jv to the dest for point j adjacent to i. see
 					// if going from i to j and from there to the dest is better than the
@@ -47,16 +50,21 @@ func (p *PathCache) Fill() {
 						p.pathCosts[pt] = jv + ev
 						nextImproved[pt] = true
 					}
+					// also check to see if going from j to i to dest is better than the
+					// current j to dest
+					if iv+iev < jv {
+						p.pathCosts[jp] = iv + iev
+						nextImproved[jp] = true
+					}
 				} else {
 					// we don't know a cost for going from j to the dest, so start out
 					// with going from j to i to the dest
-					jp := j.Point()
-					p.pathCosts[jp] = i.Value() + iv
+					p.pathCosts[jp] = iev + iv
 					nextImproved[jp] = true
 				}
 			}
-			improved = nextImproved
 		}
+		improved = nextImproved
 	}
 }
 

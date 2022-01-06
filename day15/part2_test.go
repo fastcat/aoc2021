@@ -33,9 +33,11 @@ func TestPart2Example(t *testing.T) {
 	ps := PathTo(b, util.Point{R: b.Height - 1, C: b.Width - 1})
 	slowMap := ps.fillSlow()
 	fastMap := p.costMap()
-	t.Logf("slowmap\n%s", costMapStr(slowMap))
-	t.Logf("fastmap\n%s", costMapStr(fastMap))
-	require.Equal(t, slowMap, fastMap)
+	if !assert.Equal(t, slowMap, fastMap) {
+		// assert output is hard to read, this is easier
+		t.Logf("slowmap\n%s", costMapStr(slowMap))
+		t.Logf("fastmap\n%s", costMapStr(fastMap))
+	}
 	require.Equal(t, ps, p)
 	cost := p.CostFrom(util.Point{R: 0, C: 0})
 	assert.Equal(t, 315, cost)
