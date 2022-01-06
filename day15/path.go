@@ -34,32 +34,31 @@ func (p *PathCache) Fill() {
 		nextImproved := make(map[util.Point]bool)
 		for pt := range improved {
 			i := p.entryCosts.IteratorAtPoint(pt)
-			// iv is the current best cost for going from pt(i) to the dest
+			// iv is the current best cost for i->dest, which was just improved
 			iv := p.pathCosts[pt]
-			// iev is the cost to enther point i
-			iev := i.Value()
+			// ivv is the cost for N->i->dest, for some neighbor N
+			ivv := i.Value() + iv
+			// having just improved i->dest might improve its neighbors
 			for _, j := range i.SquareAdjacencies() {
 				jp := j.Point()
-				if jv, ok := p.pathCosts[j.Point()]; ok {
-					// we have a known cost jv to the dest for point j adjacent to i. see
-					// if going from i to j and from there to the dest is better than the
-					// current best path for i to the dest.
-					// ev is the cost to enter point j adjacent to i
-					ev := j.Value()
-					if jv+ev < iv {
-						p.pathCosts[pt] = jv + ev
+				if jv, ok := p.pathCosts[jp]; ok {
+					// jv is the cost for j->dest.
+					// see if i->j->dest is better than the current i->dest. technically
+					// we could skip this, since we're only here because the i->dest path
+					// just improved, but adding this check is a big performance
+					// improvement.
+					if jvv := j.Value() + jv; jvv < iv {
+						p.pathCosts[pt] = jvv
 						nextImproved[pt] = true
 					}
-					// also check to see if going from j to i to dest is better than the
-					// current j to dest
-					if iv+iev < jv {
-						p.pathCosts[jp] = iv + iev
+					// see if j->i->dest is better than the current j->dest
+					if ivv < jv {
+						p.pathCosts[jp] = ivv
 						nextImproved[jp] = true
 					}
 				} else {
-					// we don't know a cost for going from j to the dest, so start out
-					// with going from j to i to the dest
-					p.pathCosts[jp] = iev + iv
+					// we don't know a cost for j->dest, so seed it as j->i->dest
+					p.pathCosts[jp] = ivv
 					nextImproved[jp] = true
 				}
 			}
