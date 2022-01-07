@@ -27,8 +27,60 @@ type Operator struct {
 }
 
 func (o *Operator) Header() Header  { return o.hdr }
-func (o *Operator) Value() int      { panic(nil) }
 func (o *Operator) Inner() []Packet { return o.inner }
+func (o *Operator) Value() int {
+	var reducer func(p, n int) int
+	if len(o.inner) == 1 && o.hdr.Typ >= 0 && o.hdr.Typ <= 3 {
+		return o.inner[0].Value()
+	}
+
+	switch o.hdr.Typ {
+	case 0: // sum
+		reducer = func(p, n int) int { return p + n }
+	case 1: // product
+		reducer = func(p, n int) int { return p * n }
+	case 2: // minimum
+		reducer = func(p, n int) int {
+			if p < n {
+				return p
+			}
+			return n
+		}
+	case 3: // maximum
+		reducer = func(p, n int) int {
+			if p > n {
+				return p
+			}
+			return n
+		}
+	case 5: // greater
+		reducer = func(p, n int) int {
+			if p > n {
+				return 1
+			}
+			return 0
+		}
+	case 6: // less than
+		reducer = func(p, n int) int {
+			if p < n {
+				return 1
+			}
+			return 0
+		}
+	case 7: // equal
+		reducer = func(p, n int) int {
+			if p == n {
+				return 1
+			}
+			return 0
+		}
+	}
+	val := reducer(o.inner[0].Value(), o.inner[1].Value())
+	for _, n := range o.inner[2:] {
+		val = reducer(val, n.Value())
+	}
+	return val
+}
 
 func ParseHeader(b *BitStream) Header {
 	var ret Header

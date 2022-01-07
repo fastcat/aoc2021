@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestExamples(t *testing.T) {
+func TestPart1Examples(t *testing.T) {
 	tests := []struct {
 		hex       string
 		binary    string
