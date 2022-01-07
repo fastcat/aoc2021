@@ -92,3 +92,21 @@ func (p Probe) OptimalVelocityRange(target Rect) (fast, slow Vel) {
 
 	return Vel{x1, y1}, Vel{x2, y2}
 }
+
+func (p Probe) NumVelocitiesThatHit(target Rect) int {
+	fast, slow := p.OptimalVelocityRange(target)
+	n := 0
+	// y velocity goes into the negative range, as negative as hitting the
+	// bottom of the target in one step
+	minYVel := target.Y1 - p.Pos.Y
+	// similar for x
+	maxXVel := target.X2 - p.Pos.X
+	for p.Vel.X = slow.X; p.Vel.X <= maxXVel; p.Vel.X++ {
+		for p.Vel.Y = minYVel; p.Vel.Y <= fast.Y; p.Vel.Y++ {
+			if hits, _, _ := p.WillHit(target); hits {
+				n++
+			}
+		}
+	}
+	return n
+}
