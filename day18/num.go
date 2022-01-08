@@ -120,32 +120,39 @@ func (i item) WriteTo(w RuneWriter) {
 	}
 }
 
-func (n *Node) Clone() *Node {
+func (n *Node) Clone(newParent *Node) *Node {
 	if n == nil {
 		return nil
 	}
 	ret := *n
-	ret.left, ret.right = ret.left.Clone(), ret.right.Clone()
+	ret.parent = newParent
+	ret.left, ret.right = ret.left.Clone(&ret), ret.right.Clone(&ret)
 	return &ret
 }
-func (i item) Clone() item {
-	i.n = i.n.Clone()
+func (i item) Clone(newParent *Node) item {
+	i.n = i.n.Clone(newParent)
 	return i
 }
 
 func add(l, r *Node) *Node {
-	return &Node{left: NI(l.Clone()), right: NI(r.Clone())}
+	ret := &Node{}
+	ret.left, ret.right = I(l.Clone(ret), ret), I(r.Clone(ret), ret)
+	return ret
 }
 
 func (n *Node) reduce() {
+	// fmt.Println("reducing", n.String())
 	more := true
 	for more {
+		n.valid(nil, nil)
 		more = false
 		if n.explodeWalk(0) {
+			// fmt.Println("exploded", n.String())
 			more = true
 			continue
 		}
 		if n.splitWalk() {
+			// fmt.Println("split", n.String())
 			more = true
 			continue
 		}
@@ -200,6 +207,7 @@ func (i *item) splitWalk(container *Node) bool {
 		half := float64(i.val) / 2
 		i.n = N(int(math.Floor(half)), int(math.Ceil(half)))
 		i.n.parent = container
+		i.val = 0
 		return true
 	}
 	return false
@@ -266,4 +274,15 @@ func (n *Node) zeroChild(c *Node) {
 	} else {
 		panic(nil)
 	}
+}
+
+func (n *Node) Magnitude() int {
+	return 3*n.left.Magnitude() + 2*n.right.Magnitude()
+}
+
+func (i *item) Magnitude() int {
+	if i.n != nil {
+		return i.n.Magnitude()
+	}
+	return i.val
 }
