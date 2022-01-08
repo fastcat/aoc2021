@@ -144,7 +144,7 @@ func (n *Node) reduce() {
 	// fmt.Println("reducing", n.String())
 	more := true
 	for more {
-		n.valid(nil, nil)
+		// n.valid(nil, nil)
 		more = false
 		if n.explodeWalk(0) {
 			// fmt.Println("exploded", n.String())
